@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from './CartContext';
 import { auth } from '../../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { FiShoppingCart, FiTrash2, FiPlus, FiMinus, FiArrowLeft, FiCheck } from 'react-icons/fi';
+import { FiShoppingCart, FiTrash2, FiPlus, FiMinus, FiArrowLeft, FiShoppingBag ,FiCreditCard  } from 'react-icons/fi';
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity } = useCart();
@@ -86,195 +86,208 @@ const Cart = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#222831] py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center text-[#00ADB5] hover:text-[#008E9B] transition-colors"
-          >
-            <FiArrowLeft className="mr-2" />
-            Continue Shopping
-          </button>
-          <h1 className="text-3xl font-bold text-[#EEEEEE]">Your Shopping Cart</h1>
-          <div className="w-24"></div> {/* Spacer for alignment */}
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+  <div className="max-w-7xl mx-auto">
+    {/* Header */}
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 gap-4">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center text-teal-600 hover:text-teal-700 transition-colors"
+      >
+        <FiArrowLeft className="mr-2" />
+        Continue Shopping
+      </button>
+      <h1 className="text-3xl font-bold text-gray-900">Your Shopping Cart</h1>
+      <div className="hidden sm:block w-24"></div> {/* Spacer for alignment */}
+    </div>
 
-        {cartItems.length === 0 ? (
-          <div className="text-center py-16 bg-[#393E46] rounded-xl">
-            <div className="mx-auto w-24 h-24 bg-[#222831] rounded-full flex items-center justify-center mb-4">
-              <FiShoppingCart className="text-[#00ADB5] text-3xl" />
-            </div>
-            <h3 className="text-xl font-medium text-[#EEEEEE]">Your cart is empty</h3>
-            <p className="text-[#b5b5b5] mt-4">
-              <Link 
-                to="/" 
-                className="text-[#00ADB5] hover:underline font-medium"
-              >
-                Discover our products
-              </Link>
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-4">
-              {cartItems.map((item) => (
-                <div 
-                  key={item.id} 
-                  className="bg-[#393E46] rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="p-4 flex flex-col sm:flex-row">
-                    {/* Product Image */}
-                    <div className="w-full sm:w-32 h-32 flex-shrink-0 overflow-hidden rounded-lg bg-[#222831]">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-contain p-2"
-                      />
+    {cartItems.length === 0 ? (
+      <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-200">
+        <div className="mx-auto w-24 h-24 bg-teal-50 rounded-full flex items-center justify-center mb-6">
+          <FiShoppingCart className="text-teal-600 text-3xl" />
+        </div>
+        <h3 className="text-2xl font-medium text-gray-900 mb-3">Your cart is empty</h3>
+        <p className="text-gray-600 mb-6">Start adding items to see them here</p>
+        <Link 
+          to="/" 
+          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-500 text-white rounded-lg hover:shadow-lg transition-all"
+        >
+          <FiShoppingBag className="mr-2" />
+          Browse Products
+        </Link>
+      </div>
+    ) : (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Cart Items */}
+        <div className="lg:col-span-2 space-y-6">
+          {cartItems.map((item) => (
+            <div 
+              key={item.id} 
+              className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-200"
+            >
+              <div className="p-5 flex flex-col sm:flex-row gap-5">
+                {/* Product Image */}
+                <div className="w-full sm:w-40 h-40 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-contain p-4"
+                  />
+                </div>
+                
+                {/* Product Info */}
+                <div className="flex-1 flex flex-col">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
+                      <p className="text-gray-500 text-sm capitalize">{item.category}</p>
+                    </div>
+                    <p className="text-xl font-bold text-teal-600">${item.price}</p>
+                  </div>
+                  
+                  {/* Quantity Controls */}
+                  <div className="mt-auto flex items-center justify-between pt-4">
+                    <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                      <button
+                        onClick={() => handleQuantityUpdate(item, -1)}
+                        disabled={loadingQuantityIds.includes(item.id) || loadingRemoveIds.includes(item.id)}
+                        className={`p-2 px-4 ${
+                          loadingQuantityIds.includes(item.id) 
+                            ? 'bg-gray-100 text-gray-400' 
+                            : 'bg-white hover:bg-gray-100 text-gray-700'
+                        } transition-colors`}
+                      >
+                        {loadingQuantityIds.includes(item.id) ? (
+                          <span className="inline-block h-4 w-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></span>
+                        ) : (
+                          <FiMinus />
+                        )}
+                      </button>
+                      <span className="px-4 py-2 bg-white text-gray-900 font-medium border-x border-gray-300">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => handleQuantityUpdate(item, 1)}
+                        disabled={loadingQuantityIds.includes(item.id) || loadingRemoveIds.includes(item.id)}
+                        className={`p-2 px-4 ${
+                          loadingQuantityIds.includes(item.id) 
+                            ? 'bg-gray-100 text-gray-400' 
+                            : 'bg-white hover:bg-gray-100 text-gray-700'
+                        } transition-colors`}
+                      >
+                        <FiPlus />
+                      </button>
                     </div>
                     
-                    {/* Product Info */}
-                    <div className="mt-4 sm:mt-0 sm:ml-6 flex-1">
-                      <div className="flex justify-between">
-                        <div>
-                          <h3 className="text-lg font-semibold text-[#EEEEEE]">{item.name}</h3>
-                          <p className="text-[#b5b5b5] text-sm capitalize">{item.category}</p>
-                        </div>
-                        <p className="text-lg font-semibold text-[#00ADB5]">${item.price}</p>
-                      </div>
-                      
-                      {/* Quantity Controls */}
-                      <div className="flex items-center justify-between mt-6">
-                        <div className="flex items-center">
-                          <button
-                            onClick={() => handleQuantityUpdate(item, -1)}
-                            disabled={loadingQuantityIds.includes(item.id) || loadingRemoveIds.includes(item.id)}
-                            className={`p-2 rounded-l-lg ${
-                              loadingQuantityIds.includes(item.id) 
-                                ? 'bg-[#222831] text-[#b5b5b5]' 
-                                : 'bg-[#222831] hover:bg-[#00ADB5] text-[#EEEEEE]'
-                            } transition-colors`}
-                          >
-                            <FiMinus />
-                          </button>
-                          <span className="px-4 py-2 bg-[#222831] text-[#EEEEEE]">
-                            {loadingQuantityIds.includes(item.id) ? (
-                              <span className="inline-block h-4 w-4 border-2 border-[#00ADB5] border-t-transparent rounded-full animate-spin"></span>
-                            ) : (
-                              item.quantity
-                            )}
-                          </span>
-                          <button
-                            onClick={() => handleQuantityUpdate(item, 1)}
-                            disabled={loadingQuantityIds.includes(item.id) || loadingRemoveIds.includes(item.id)}
-                            className={`p-2 rounded-r-lg ${
-                              loadingQuantityIds.includes(item.id) 
-                                ? 'bg-[#222831] text-[#b5b5b5]' 
-                                : 'bg-[#222831] hover:bg-[#00ADB5] text-[#EEEEEE]'
-                            } transition-colors`}
-                          >
-                            <FiPlus />
-                          </button>
-                        </div>
-                        
-                        {/* Remove Button */}
-                        <button
-                          onClick={() => handleRemove(item.id)}
-                          disabled={loadingRemoveIds.includes(item.id) || loadingQuantityIds.includes(item.id)}
-                          className={`flex items-center px-3 py-2 rounded-lg ${
-                            loadingRemoveIds.includes(item.id)
-                              ? 'bg-[#222831] text-[#b5b5b5]'
-                              : 'bg-[#222831] hover:bg-red-500 text-[#EEEEEE]'
-                          } transition-colors`}
-                        >
-                          {loadingRemoveIds.includes(item.id) ? (
-                            <>
-                              <span className="inline-block h-4 w-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin mr-2"></span>
-                              Removing
-                            </>
-                          ) : (
-                            <>
-                              <FiTrash2 className="mr-2" />
-                              Remove
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
+                    {/* Remove Button */}
+                    <button
+                      onClick={() => handleRemove(item.id)}
+                      disabled={loadingRemoveIds.includes(item.id) || loadingQuantityIds.includes(item.id)}
+                      className={`flex items-center px-4 py-2 rounded-lg ${
+                        loadingRemoveIds.includes(item.id)
+                          ? 'bg-gray-100 text-gray-400'
+                          : 'text-red-600 hover:bg-red-50'
+                      } transition-colors`}
+                    >
+                      {loadingRemoveIds.includes(item.id) ? (
+                        <>
+                          <span className="inline-block h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-2"></span>
+                          Removing
+                        </>
+                      ) : (
+                        <>
+                          <FiTrash2 className="mr-2" />
+                          Remove
+                        </>
+                      )}
+                    </button>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Order Summary */}
-            <div className="lg:col-span-1">
-              <div className="bg-[#393E46] rounded-xl shadow-lg p-6 sticky top-4">
-                <h2 className="text-xl font-bold text-[#EEEEEE] mb-6 pb-2 border-b border-[#222831]">
-                  Order Summary
-                </h2>
-                
-                <div className="space-y-4 mb-6">
-                  <div className="flex justify-between">
-                    <span className="text-[#b5b5b5]">Items ({calculateItemCount()}):</span>
-                    <span className="text-[#EEEEEE] font-medium">
-                      ${calculateTotal().toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#b5b5b5]">Shipping:</span>
-                    <span className="text-[#EEEEEE] font-medium">FREE</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#b5b5b5]">Tax:</span>
-                    <span className="text-[#EEEEEE] font-medium">Calculated at checkout</span>
-                  </div>
-                </div>
-                
-                <div className="py-4 border-t border-b border-[#222831] mb-6">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-[#EEEEEE]">Total</span>
-                    <span className="text-2xl font-bold text-[#00ADB5]">
-                      ${calculateTotal().toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-                
-                <button
-                  className={`w-full py-3 px-4 rounded-lg font-bold transition-colors flex items-center justify-center ${
-                    cartItems.length === 0 || isProcessing
-                      ? 'bg-[#393E46] text-[#b5b5b5] cursor-not-allowed'
-                      : 'bg-[#00ADB5] hover:bg-[#008E9B] text-[#EEEEEE]'
-                  }`}
-                  disabled={cartItems.length === 0 || isProcessing}
-                  onClick={() => navigate('/checkout')}
-                >
-                  {isProcessing ? (
-                    <>
-                      <span className="inline-block h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <FiCheck className="mr-2" />
-                      Proceed to Checkout
-                    </>
-                  )}
-                </button>
-                
-                <div className="mt-4 flex items-center text-[#b5b5b5] text-sm">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Express checkout available</span>
                 </div>
               </div>
             </div>
+          ))}
+        </div>
+
+        {/* Order Summary */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-xl shadow-lg p-6 sticky top-6 border border-gray-200">
+            <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-200">
+              Order Summary
+            </h2>
+            
+            <div className="space-y-4 mb-6">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Subtotal ({calculateItemCount()} items):</span>
+                <span className="text-gray-900 font-medium">
+                  ${calculateTotal().toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Shipping:</span>
+                <span className="text-gray-900 font-medium">FREE</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Estimated Tax:</span>
+                <span className="text-gray-900 font-medium">${(calculateTotal() * 0.08).toFixed(2)}</span>
+              </div>
+            </div>
+            
+            <div className="py-4 border-t border-b border-gray-200 mb-6">
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-bold text-gray-900">Total</span>
+                <span className="text-2xl font-bold text-teal-600">
+                  ${(calculateTotal() * 1.08).toFixed(2)}
+                </span>
+              </div>
+            </div>
+            
+            <button
+              className={`w-full py-4 px-6 rounded-lg font-bold transition-all flex items-center justify-center ${
+                cartItems.length === 0 || isProcessing
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-700 hover:to-cyan-600 text-white shadow-md hover:shadow-lg'
+              }`}
+              disabled={cartItems.length === 0 || isProcessing}
+              onClick={() => navigate('/checkout')}
+            >
+              {isProcessing ? (
+                <>
+                  <span className="inline-block h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <FiCreditCard className="mr-3" />
+                  Proceed to Checkout
+                </>
+              )}
+            </button>
+            
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">or checkout with</span>
+                </div>
+              </div>
+              
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <button className="p-2 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
+                  <span className="text-sm font-medium">Google Pay</span>
+                </button>
+                <button className="p-2 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
+                  <span className="text-sm font-medium">Apple Pay</span>
+                </button>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
+    )}
+  </div>
+</div>
   );
 };
 

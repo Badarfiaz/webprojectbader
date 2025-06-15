@@ -13,6 +13,8 @@ import ItemsPage from './Pages/ItemsPage';
 import ProductPage from './Pages/Product';
 import Orders from './Componenets/Orders';
 import { auth } from '../firebase';
+import Footer from './Componenets/Footer';
+import ContactPage from './Pages/Contact';
 const App = () => {
   const [user, setUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
@@ -50,10 +52,10 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/product/:id" element={<ProductPage />} />
-
-        {/* ✅ Protected Routes */}
-        <Route
+ 
+         <Route
           path="/orders"
           element={isAdmin ? <Orders /> : <Navigate to="/" replace />}
         />
@@ -62,6 +64,7 @@ const App = () => {
           element={isAdmin ? <AdminSite /> : <Navigate to="/" replace />}
         />
       </Routes>
+      <Footer/>
     </Router>
   );
 };
